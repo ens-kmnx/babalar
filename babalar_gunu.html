@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kurtlar Vadisi Babalar Günü</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+            color: #ffffff;
+            font-family: 'Times New Roman', Times, serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Yeraltı dünyası pus/sis efekti */
+        .fog {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1533240332313-0db49b459ad6?q=80&w=1974&auto=format&fit=crop') center/cover;
+            opacity: 0.08;
+            mix-blend-mode: screen;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 30px;
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid rgba(214, 175, 55, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+        }
+
+        /* Kurtlar Vadisi tarzı ağır ve asil başlık */
+        h1 {
+            font-size: 3.2rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: #d4af37; /* Racon Altını */
+            text-shadow: 0px 0px 20px rgba(212, 175, 55, 0.5), 3px 3px 5px #000;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 1.5s ease-out;
+        }
+
+        /* Duygusal ve ağır mesaj */
+        p {
+            font-size: 1.8rem;
+            margin-top: 25px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            text-shadow: 2px 2px 8px #000;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.5s ease-out;
+        }
+
+        .line {
+            width: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #d4af37, transparent);
+            margin: 25px auto;
+            transition: width 2s ease-out;
+        }
+
+        /* Başlatma Butonu */
+        .play-btn {
+            background: #0a0a0a;
+            border: 2px solid #d4af37;
+            color: #d4af37;
+            padding: 15px 40px;
+            font-size: 1.4rem;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            border-radius: 4px;
+        }
+
+        .play-btn:hover {
+            background: #d4af37;
+            color: #0a0a0a;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.8);
+        }
+
+        /* Konfeti dünyası için canvas */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="fog"></div>
+    <canvas id="confettiCanvas"></canvas>
+
+    <div class="container" id="mainContainer">
+        <button class="play-btn" id="startBtn">Raconu Başlat & Kutla</button>
+        <h1 id="title">BABALAR GÜNÜN KUTLU OLSUN BABA</h1>
+        <div class="line" id="line"></div>
+        <p id="message">"Rabbim sana uzun ve hayırlı ömürler nasip etsin."</p>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundboard.com/media/audio/6e4dbb38-d9bb-4c2f-9694-85bc8b1cc949.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const music = document.getElementById('bgMusic');
+        const title = document.getElementById('title');
+        const line = document.getElementById('line');
+        const message = document.getElementById('message');
+        const canvas = document.getElementById('confettiCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let confettis = [];
+        let animationActive = false;
+
+        // Ekran boyutuna göre canvas ayarı
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Konfeti Sınıfı (Yeraltı temasına uygun altın ve gri tonları)
+        class Confetti {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * -canvas.height;
+                this.size = Math.random() * 8 + 6;
+                this.speed = Math.random() * 3 + 2;
+                this.angle = Math.random() * 360;
+                this.spin = Math.random() * 2 - 1;
+                
+                // Ağır yeraltı renkleri: Altın, Gümüş, Koyu Gri, Platin
+                const colors = ['#d4af37', '#aa7c11', '#ffffff', '#555555', '#888888'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.y += this.speed;
+                this.angle += this.spin;
+                if (this.y > canvas.height) {
+                    this.y = -10;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle * Math.PI / 180);
+                ctx.fillStyle = this.color;
+                // Kare konfetiler
+                ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function initConfetti() {
+            for (let i = 0; i < 150; i++) {
+                confettis.push(new Confetti());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            confettis.forEach(c => {
+                c.update();
+                c.draw();
+            });
+            if(animationActive) {
+                requestAnimationFrame(animate);
+            }
+        }
+
+        // Tıklama Olayı
+        startBtn.addEventListener('click', () => {
+            // Müziği çal
+            music.play().catch(e => console.log("Müzik yüklenemedi, bağlantınızı kontrol edin."));
+            
+            // Butonu kaldır
+            startBtn.style.display = 'none';
+
+            // Yazıları ve efektleri sırayla tetikle
+            setTimeout(() => {
+                title.style.opacity = '1';
+                title.style.transform = 'scale(1)';
+            }, 200);
+
+            setTimeout(() => {
+                line.style.width = '80%';
+            }, 1000);
+
+            setTimeout(() => {
+                message.style.opacity = '1';
+                message.style.transform = 'translateY(0)';
+            }, 2000);
+
+            // Konfeti efektini başlat
+            animationActive = true;
+            initConfetti();
+            animate();
+        });
+    </script>
+</body>
+</html>

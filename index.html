@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kurtlar Vadisi Babalar Günü</title>
+    <title>Kurtlar Vadisi Babalar Günü - Enes'ten Hediye</title>
     <style>
         * {
             margin: 0;
@@ -38,10 +38,10 @@
         .container {
             text-align: center;
             z-index: 10;
-            padding: 30px;
-            max-width: 800px;
-            background: rgba(0, 0, 0, 0.65);
-            border: 1px solid rgba(214, 175, 55, 0.2);
+            padding: 40px;
+            max-width: 850px;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(214, 175, 55, 0.25);
             backdrop-filter: blur(10px);
             border-radius: 8px;
             box-shadow: 0 0 50px rgba(0,0,0,0.9);
@@ -49,7 +49,7 @@
 
         /* Kurtlar Vadisi tarzı ağır ve asil başlık */
         h1 {
-            font-size: 3.2rem;
+            font-size: 3rem;
             text-transform: uppercase;
             letter-spacing: 5px;
             color: #d4af37; /* Racon Altını */
@@ -59,8 +59,20 @@
             transition: all 1.5s ease-out;
         }
 
-        /* Duygusal ve ağır mesaj */
-        p {
+        /* Oğlundan imza kısmı */
+        .signature {
+            font-size: 1.4rem;
+            font-style: italic;
+            color: #b5b5b5;
+            margin-top: 15px;
+            letter-spacing: 2px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1.5s ease-out;
+        }
+
+        /* Duygusal ve ağır dua mesajı */
+        .message {
             font-size: 1.8rem;
             margin-top: 25px;
             line-height: 1.6;
@@ -120,11 +132,15 @@
 
     <div class="container" id="mainContainer">
         <button class="play-btn" id="startBtn">Raconu Başlat & Kutla</button>
+        
         <h1 id="title">BABALAR GÜNÜN KUTLU OLSUN BABA</h1>
+        <div class="signature" id="signature">Oğlun Enes'ten ufak bir hediye...</div>
         <div class="line" id="line"></div>
-        <p id="message">"Rabbim sana uzun ve hayırlı ömürler nasip etsin."</p>
+        <p class="message" id="message">"Rabbim sana uzun ve hayırlı ömürler nasip etsin. <br>Allah seni başımızdan eksik etmesin."</p>
     </div>
 
+    <!-- Polat Alemdar Orijinal Jenerik Müziği -->
+    <!-- Önemli Not: İnternete yüklerken yanına kendi müzik dosyanı koyarsan src="muzik.mp3" yapabilirsin -->
     <audio id="bgMusic" loop>
         <source src="https://www.soundboard.com/media/audio/6e4dbb38-d9bb-4c2f-9694-85bc8b1cc949.mp3" type="audio/mpeg">
     </audio>
@@ -133,6 +149,7 @@
         const startBtn = document.getElementById('startBtn');
         const music = document.getElementById('bgMusic');
         const title = document.getElementById('title');
+        const signature = document.getElementById('signature');
         const line = document.getElementById('line');
         const message = document.getElementById('message');
         const canvas = document.getElementById('confettiCanvas');
@@ -141,7 +158,6 @@
         let confettis = [];
         let animationActive = false;
 
-        // Ekran boyutuna göre canvas ayarı
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -149,7 +165,6 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Konfeti Sınıfı (Yeraltı temasına uygun altın ve gri tonları)
         class Confetti {
             constructor() {
                 this.x = Math.random() * canvas.width;
@@ -159,8 +174,8 @@
                 this.angle = Math.random() * 360;
                 this.spin = Math.random() * 2 - 1;
                 
-                // Ağır yeraltı renkleri: Altın, Gümüş, Koyu Gri, Platin
-                const colors = ['#d4af37', '#aa7c11', '#ffffff', '#555555', '#888888'];
+                // Altın ve karizmatik yeraltı tonları
+                const colors = ['#d4af37', '#aa7c11', '#ffffff', '#444444', '#777777'];
                 this.color = colors[Math.floor(Math.random() * colors.length)];
             }
 
@@ -178,7 +193,6 @@
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.angle * Math.PI / 180);
                 ctx.fillStyle = this.color;
-                // Kare konfetiler
                 ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
                 ctx.restore();
             }
@@ -201,30 +215,31 @@
             }
         }
 
-        // Tıklama Olayı
         startBtn.addEventListener('click', () => {
-            // Müziği çal
-            music.play().catch(e => console.log("Müzik yüklenemedi, bağlantınızı kontrol edin."));
-            
-            // Butonu kaldır
+            music.play().catch(e => console.log("Müzik yükleme hatası. İnternete yüklerken kendi mp3 dosyanızı eklemeniz önerilir."));
             startBtn.style.display = 'none';
 
-            // Yazıları ve efektleri sırayla tetikle
+            // Animasyon sıralaması (Zamanlama ayarları)
             setTimeout(() => {
                 title.style.opacity = '1';
                 title.style.transform = 'scale(1)';
-            }, 200);
+            }, 300);
+
+            setTimeout(() => {
+                signature.style.opacity = '1';
+                signature.style.transform = 'translateY(0)';
+            }, 1500);
 
             setTimeout(() => {
                 line.style.width = '80%';
-            }, 1000);
+            }, 2500);
 
             setTimeout(() => {
                 message.style.opacity = '1';
                 message.style.transform = 'translateY(0)';
-            }, 2000);
+            }, 3500);
 
-            // Konfeti efektini başlat
+            // Altın konfetileri patlat
             animationActive = true;
             initConfetti();
             animate();
